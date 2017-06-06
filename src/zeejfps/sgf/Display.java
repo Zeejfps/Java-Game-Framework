@@ -14,25 +14,23 @@ import java.util.List;
  */
 public class Display {
 
+    public final Bitmap framebuffer;
+
     private final JFrame frame;
     private final Canvas canvas;
-
     private final BufferedImage img;
-    private final Bitmap framebuffer;
-
     private BufferStrategy bs;
-    private List<Viewport> viewports;
 
-    public Display(int xRes, int yRes, int width, int height, String title) {
+    public Display(Config config) {
 
         // Create the canvas we are going to draw on
         canvas = new Canvas();
-        canvas.setPreferredSize(new Dimension(width, height));
+        canvas.setPreferredSize(new Dimension(config.windowWidth, config.windowHeight));
         canvas.setBackground(Color.BLACK);
         canvas.setFocusable(true);
 
         // Create the frame to hold the canvas
-        frame = new JFrame(title);
+        frame = new JFrame(config.gameTitle);
         frame.getContentPane().add(canvas);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setResizable(false);
@@ -40,11 +38,9 @@ public class Display {
         frame.setLocationRelativeTo(null);
 
         // Create our framebuffer bitmap
-        this.img = new BufferedImage(xRes, yRes, BufferedImage.TYPE_INT_RGB);
+        this.img = new BufferedImage(config.xRes, config.yRes, BufferedImage.TYPE_INT_RGB);
         int[] pixels = ((DataBufferInt)img.getRaster().getDataBuffer()).getData();
-        this.framebuffer = new Bitmap(xRes, yRes, pixels, false);
-
-         viewports = new ArrayList<>();
+        this.framebuffer = new Bitmap(config.xRes, config.yRes, pixels, false);
     }
 
     void setKeyListener(KeyListener l) {
@@ -66,9 +62,6 @@ public class Display {
         }
 
         Graphics2D g = (Graphics2D)bs.getDrawGraphics();
-        for (Viewport vp : viewports) {
-            framebuffer.blit(vp, vp.x, vp.y);
-        }
         g.drawImage(img, 0, 0, canvas.getWidth(), canvas.getHeight(), null);
         Toolkit.getDefaultToolkit().sync();
         g.dispose();
@@ -83,18 +76,5 @@ public class Display {
         return canvas.getHeight();
     }
 
-    public Viewport createViewport(float x, float y, float w, float h) {
-
-        int sx = (int) (x * framebuffer.width);
-        int ex = (int) (w * framebuffer.width);
-        int sy = (int) (y * framebuffer.height);
-        int ey = (int) (h * framebuffer.height);
-        int width = ex - sx;
-        int height = ey - sy;
-
-        Viewport vp = new Viewport(sx, sy, width, height, new int[width*height], false);
-        viewports.add(vp);
-        return vp;
-    }
 
 }

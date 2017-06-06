@@ -7,32 +7,38 @@ public class Camera {
 
     public final Vec2f pos;
 
-    private final Framebuffer fb;
-    private final float numUnitsX, numUnitsY;
-    private final int pixelsPerUnit;
+    private final Bitmap fb;
 
-    public Camera(int xRes, int yRes, int pixelsPerUnit) {
-        this.fb = Framebuffer.create(xRes, yRes);
-        this.pixelsPerUnit = pixelsPerUnit;
+    private Vec2f size;
+    private int unitSize;
+    private float aspect;
+
+    public Camera(Bitmap framebuffer, int size) {
+        this.fb = framebuffer;
         this.pos = new Vec2f(0,0);
-        this.numUnitsX = xRes / (float) pixelsPerUnit / 2f;
-        this.numUnitsY = yRes / (float) pixelsPerUnit / 2f;
+        this.aspect = framebuffer.width / (float)framebuffer.height;
+        this.size = new Vec2f();
+        setSize(size);
     }
 
-    public Framebuffer getFramebuffer() {
-        return fb;
+    public void setSize(int size) {
+        if (size < 1) size = 1;
+        unitSize = fb.height / size;
+        this.size.y = size / 2f;
+        this.size.x = this.size.y * aspect;
     }
 
-    public void render(Renderable r) {
-        Sprite sprite = r.onRender();
+    public void render(Sprite sprite) {
 
-        float viewX = sprite.pos.x + pos.x + numUnitsX;
-        float viewY = sprite.pos.y + pos.y + numUnitsY;
+        Bitmap bitmap = sprite.onRender(unitSize);
 
-        int screenX = (int)(viewX * pixelsPerUnit - sprite.pivot.x * sprite.bitmap.width);
-        int screenY = (int)(viewY * pixelsPerUnit - sprite.pivot.y * sprite.bitmap.height);
+        float viewX = sprite.pos.x + pos.x + size.x;
+        float viewY = sprite.pos.y + pos.y + size.y;
 
-        fb.blit(sprite.bitmap, screenX, screenY);
+        int screenX = (int)(viewX * unitSize - sprite.pivot.x * bitmap.width);
+        int screenY = (int)(viewY * unitSize - sprite.pivot.y * bitmap.height);
+
+        fb.blit(bitmap, screenX, screenY);
     }
 
 }

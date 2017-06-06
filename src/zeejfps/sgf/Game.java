@@ -21,7 +21,7 @@ public abstract class Game {
         loop();
     }
 
-    public final void terminate() {
+    public final void exit() {
         if (!running) return;
         running = false;
     }
