@@ -6,13 +6,16 @@ import java.awt.event.KeyListener;
 import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 /**
  * Created by Zeejfps on 6/3/17.
  */
 public class Display {
+
+    private static GraphicsDevice device = GraphicsEnvironment
+            .getLocalGraphicsEnvironment().getScreenDevices()[0];
+
 
     public final Bitmap framebuffer;
 
@@ -36,15 +39,20 @@ public class Display {
         frame.setResizable(false);
         frame.pack();
         frame.setLocationRelativeTo(null);
+        //frame.setUndecorated(true);
+        //device.setFullScreenWindow(frame);
 
         // Create our framebuffer bitmap
         this.img = new BufferedImage(config.xRes, config.yRes, BufferedImage.TYPE_INT_RGB);
-        int[] pixels = ((DataBufferInt)img.getRaster().getDataBuffer()).getData();
-        this.framebuffer = new Bitmap(config.xRes, config.yRes, pixels, false);
+        this.framebuffer = Bitmap.attach(img, true);
     }
 
     void setKeyListener(KeyListener l) {
         canvas.addKeyListener(l);
+    }
+
+    public void clear(int color) {
+        Arrays.fill(framebuffer.pixels, color);
     }
 
     public void setVisible(boolean visible) {

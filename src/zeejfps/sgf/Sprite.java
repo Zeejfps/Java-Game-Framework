@@ -40,25 +40,23 @@ public class Sprite {
             return cached;
         }
 
-        System.out.printf("Not Cached!");
-
         int w = (int) (size.x * unitSize);
         int h = (int) (size.y * unitSize);
 
         float dx = (float)bitmap.width / w;
         float dy = (float)bitmap.height / h;
 
+        cached = Bitmap.create(w, h, bitmap.isOpaque);
+
         int index = 0;
         float x, y = 0;
-        int[] pixels = new int[w*h];
         for (int i = 0; i < h; i++, y += dy) {
             x = 0;
             for (int j = 0; j < w; j++, x += dx, index++) {
-                pixels[index] = bitmap.pixels[(int)(y)*bitmap.width + (int)x];
+                cached.pixels[index] = bitmap.pixels[(int)(y)*bitmap.width + (int)x];
             }
         }
 
-        cached = new Bitmap(w, h, pixels, bitmap.hasAlpha);
         this.unitSize = unitSize;
         isDirty = false;
 
